@@ -13,29 +13,25 @@ const Enregvideo = () => {
   const startRecording = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1920, height: 1080, frameRate: 30 },
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 44100,
-          channelCount: 2,
-        },
+        video: true,
+        audio: true,
       });
-
+    
       setStream(mediaStream);
-
+    
       const videoPreview = document.getElementById('preview');
       videoPreview.srcObject = mediaStream;
-
+    
       const recorder = new MediaRecorder(mediaStream);
       recorder.ondataavailable = handleDataAvailable;
       recorder.start();
-
+    
       setMediaRecorder(recorder);
       setIsRecording(true);
     } catch (error) {
       console.error('Erreur lors de la capture vidéo:', error);
     }
+    
   };
 
   const handleDataAvailable = (event) => {

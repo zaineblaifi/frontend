@@ -1,20 +1,58 @@
 import React, { useState } from 'react'
 import axios from 'axios';
 import {useNavigate} from "react-router-dom";
+import nodemailer from 'nodemailer';
+import sgTransport from 'nodemailer-sendgrid-transport';
+const transport = nodemailer.createTransport(
+  sgTransport({
+    auth: {
+      api_key: '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',
+    },
+  })
+);
 function Register() {
   const [values, setValues]=useState({
     name: '',
     email:'',
     phone:'',
     password :'',
+    confirmPassword :'',
   })
   const navigate= useNavigate();
-  const handleSubmit= (event) =>{
+  const isValidEmail = (email) => {
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    return emailPattern.test(email);
+  };
+  const handleSubmit= async (event) =>{
     event.preventDefault();
+    
+    if (values.password.trim() !== values.confirmPassword.trim()){
+      alert("Passwords do not match");
+      return; 
+    }
+    if (!isValidEmail(values.email)) {
+      alert('Invalid email address');
+      return;
+    }
+  
+    try {
+      
+      await transport.sendMail({
+        from: 'developerzaineb@gmail.com',
+        to: values.email,
+        subject: 'Confirmation de compte',
+        text: 'Bienvenue! Veuillez confirmer votre compte en cliquant sur le lien suivant: ...',
+      });
+  
+      // Rediriger vers la page de connexion
+      navigate('/login');
+    } catch (error) {
+      console.error('Erreur lors de l\'enregistrement ou de l\'envoi de l\'e-mail', error);
+    }
     axios.post('http://localhost:8080/register', values)
     .then(res=> {
       if(res.data.Status ==="Success"){
-        navigate('/login');
+        navigate('/login', { state: { signupSuccess: true } })
       } else {
         alert("Error");
       }
@@ -64,9 +102,10 @@ function Register() {
                 </div>
 
                 <div className="form-group row mt-3">
-                  <label htmlFor="passwordConfirm" className="col-md-4 col-form-label text-md-right">Confirm Password</label>
+                  <label htmlFor="confirmPassword" className="col-md-4 col-form-label text-md-right">Confirm Password</label>
                   <div className="col-md-10"> 
-                    <input type="password" id="passwordConfirm" className="form-control" name="passwordConfirm"/>
+                    <input type="password" id="confirmPassword" className="form-control" name="confirmPassword"
+                    onChange={e=>setValues({...values, confirmPassword:e.target.value})}/>
                   </div>
                 </div>
 

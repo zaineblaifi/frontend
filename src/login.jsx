@@ -1,14 +1,17 @@
 import React, {useState} from 'react'
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import axios from "axios";
 
 function Login() {
-    const [values, setValues]=useState({
-        email:'',
-        password :'',
-    })
-
-    const navigate= useNavigate();
+    const [values, setValues] = useState({
+        email: '',
+        password: '',
+      });
+    
+      const navigate = useNavigate();
+      const location = useLocation(); 
+      const signupSuccess = location.state && location.state.signupSuccess;
+    
     axios.defaults.withCredentials= true;
     const handleSubmit= (event) => {
         event.preventDefault();
@@ -27,6 +30,9 @@ function Login() {
     }
   return (
     <div>
+        {signupSuccess && (
+        <p>You have been successfully registered!</p>
+      )}
         <form onSubmit={handleSubmit}>
             <div className="form-group mt-4">
                 <label htmlFor="inputEmail">Email</label>
@@ -42,10 +48,11 @@ function Login() {
             </div>
 
             <button type="submit" className="btn btn-primary mt-4">Sign in</button>
-            <div className="form-group mt-4">
-
-                <a href="/register" >Signup</a>
-            </div>
+            {!signupSuccess && (
+          <div className="form-group mt-4">
+            <a href="/register">Signup</a>
+          </div>
+        )}
         </form>
     </div>
   )
